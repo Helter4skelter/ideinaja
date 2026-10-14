@@ -1,0 +1,49 @@
+<script>
+    // Masukkan API Key dari Google AI Studio di sini
+    const GEMINI_API_KEY = 'API_KEY_KAMU_DI_SINI'; 
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+
+    async function generateHook() {
+        const topic = document.getElementById('topicInput').value;
+        const btn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const resultBox = document.getElementById('resultContainer');
+
+        if(!topic) return alert('Isi topik tren dulu!');
+
+        btn.disabled = true;
+        loading.classList.remove('hidden');
+        resultBox.classList.add('hidden');
+
+        const prompt = `Bertindaklah sebagai admin sosmed Gen Z yang sarkas dan chronically online. Buat konsep Instagram Carousel (4 slide) tentang: ${topic}.
+        Aturan ketat:
+        1. Gunakan slang (NPC, gaslight, gatekeep).
+        2. DILARANG KERAS menggunakan kata: jual, beli, murah, APK, mod, link, premium, atau nama brand spesifik apapun.
+        3. Slide 1: Hook roasting/opini kontroversial.
+        4. Slide 2-3: Memperbesar masalah audiens.
+        5. Slide 4: Soft-selling super halus. Arahkan ke "jalur alternatif" atau "cek profil".
+        Format output HANYA teks per slide tanpa basa-basi.`;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+            
+            const data = await response.json();
+            const generatedContent = data.candidates[0].content.parts[0].text;
+            
+            resultBox.innerHTML = generatedContent;
+            resultBox.classList.remove('hidden');
+        } catch (error) {
+            alert('Gagal memproses data dari AI.');
+            console.error(error);
+        } finally {
+            btn.disabled = false;
+            loading.classList.add('hidden');
+        }
+    }
+</script>
